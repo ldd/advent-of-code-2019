@@ -1,14 +1,13 @@
 function parseInput(rawInput = "") {
   return rawInput.split(",").map(Number);
 }
-function runProgram(A = [], input = 0) {
+function runIntcodeProgram(A = [], input = []) {
   outputs = [];
   j = 0;
   for (let i = 0; i < A.length; i += j) {
-
     s = String(A[i]).padStart(5, 0);
-    const l = s.slice(2, 3) === "1" ? A[i + 1] : A[A[i + 1]]
-    const r = s.slice(1, 2) === "1" ? A[i + 2] : A[A[i + 2]]
+    const l = s.slice(2, 3) === "1" ? A[i + 1] : A[A[i + 1]];
+    const r = s.slice(1, 2) === "1" ? A[i + 2] : A[A[i + 2]];
 
     switch (s.slice(3, 5)) {
       case "01": {
@@ -22,7 +21,8 @@ function runProgram(A = [], input = 0) {
         break;
       }
       case "03": {
-        A[A[i + 1]] = input;
+        A[A[i + 1]] = input[0] || 0;
+        input = input.slice(1);
         j = 2;
         break;
       }
@@ -51,8 +51,11 @@ function runProgram(A = [], input = 0) {
         j = 4;
         break;
       }
-      case 99: return;
-      default: j = Infinity; break;
+      case 99:
+        return;
+      default:
+        j = Infinity;
+        break;
     }
   }
   // we expect all tests to pass ( all outputs except last to be zero)
@@ -63,12 +66,12 @@ function runProgram(A = [], input = 0) {
 }
 function part1(rawInput) {
   const A = parseInput(rawInput);
-  return runProgram(A, 1);
+  return runIntcodeProgram(A, [1]);
 }
 
 function part2(rawInput) {
   const A = parseInput(rawInput);
-  return runProgram(A, 5);
+  return runIntcodeProgram(A, [5]);
 }
 
-module.exports = { part1, part2 };
+module.exports = { part1, part2, runIntcodeProgram };
