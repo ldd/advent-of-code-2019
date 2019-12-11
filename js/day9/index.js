@@ -4,19 +4,22 @@ function parseInput(rawInput = "") {
   return rawInput.split(",").map(Number);
 }
 
-// 203 tried, "too low"
-function part1(rawInput) {
-  const A = parseInput(rawInput);
-  const instance = runIntcodeProgram([...A], 1, true);
+function getResultFromProgram(A = [], mode = 1) {
+  const instance = runIntcodeProgram([...A], mode, true);
   let result = instance.next();
   while (result.done === false) {
     result = instance.next();
   }
   return result.value;
 }
+
+function part1(rawInput) {
+  const A = parseInput(rawInput);
+  return getResultFromProgram(A, 1);
+}
 function part2(rawInput) {
   const A = parseInput(rawInput);
-  return null;
+  return getResultFromProgram(A, 2);
 }
 
 module.exports = { part1, part2 };
