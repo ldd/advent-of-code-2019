@@ -13,7 +13,7 @@ function part1(rawInput) {
     line.filter(({ hasAsteroid }) => hasAsteroid)
   );
   const maxAsteroid = asteroids
-    .map((asteroid, i) =>
+    .map(asteroid =>
       asteroids.reduce(
         (dic, { x, y }) => {
           if (x === asteroid.x && y === asteroid.y) return dic;
@@ -34,7 +34,7 @@ function part1(rawInput) {
 
 function part2(rawInput) {
   const A = parseInput(rawInput);
-  // return A;
+  return A;
 }
 
 module.exports = { part1, part2 };

@@ -2,10 +2,10 @@ function parseInput(rawInput = "") {
   return rawInput.split(",").map(Number);
 }
 function runIntcodeProgram(A = [], input = []) {
-  outputs = [];
-  j = 0;
+  const outputs = [];
+  let j = 0;
   for (let i = 0; i < A.length; i += j) {
-    s = String(A[i]).padStart(5, 0);
+    const s = String(A[i]).padStart(5, 0);
     const l = s.slice(2, 3) === "1" ? A[i + 1] : A[A[i + 1]];
     const r = s.slice(1, 2) === "1" ? A[i + 2] : A[A[i + 2]];
 

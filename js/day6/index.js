@@ -15,7 +15,7 @@ function part1(rawInput) {
 
   const valueMap = A.reduce((dic, [l, r]) => ({ ...dic, [r]: l }), {});
   const count = parent => (parent ? 1 + count(valueMap[parent]) : 0);
-  return A.map(([l, r]) => count(valueMap[r])).reduce(sumReducer);
+  return A.map(([, r]) => count(valueMap[r])).reduce(sumReducer);
 }
 
 // still roughly based on the solution I found on reddit

@@ -44,7 +44,7 @@ function getThrust(A, choices, useFeedbackLoop = false) {
   do {
     for (let i = 0; i < 5; i++) {
       // we attempt to get an output from the generator. If this fails, we were expected to give it an input
-      partial = instances[i].next(result.value);
+      const partial = instances[i].next(result.value);
       if (partial.value === undefined) result = instances[i].next(result.value);
       else result = partial;
     }

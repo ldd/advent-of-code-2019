@@ -11,14 +11,16 @@ function hasValidDigits(digits, condition) {
     if (digits[i] > digits[i + 1]) return false;
     if (digits[i] === digits[i + 1]) counts[digits[i]]++;
   }
-  return counts.some(condition)
+  return counts.some(condition);
 }
 
 function part1(rawInput, condition = count => count >= 1) {
   const [begin, end] = parseInput(rawInput);
   let count = 0;
   for (let i = begin; i < end; i++) {
-    const digits = String(i).split("").map(Number);
+    const digits = String(i)
+      .split("")
+      .map(Number);
     if (hasValidDigits(digits, condition)) count++;
   }
   return count;

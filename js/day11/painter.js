@@ -3,7 +3,7 @@ const ROWS = 100;
 const mid = Math.floor(ROWS / 2) * COLS + Math.floor(COLS / 2);
 
 const BLACK = 0;
-const WHITE = 1;
+// const WHITE = 1;
 const LEFT = 0;
 const RIGHT = 1;
 

@@ -13,7 +13,7 @@ function* runIntcodeProgram(
   let output = [];
   while (true) {
     for (let i = 0; i < A.length; i += j) {
-      s = String(A[i]).padStart(5, 0);
+      const s = String(A[i]).padStart(5, 0);
       // 0 is position mode, 1 is immediate mode, 2 is relative mode
       const [leftMode, rightMode] = [s.slice(2, 3), s.slice(1, 2)];
       let l = leftMode === IMMEDIATE ? A[i + 1] : A[A[i + 1]];
