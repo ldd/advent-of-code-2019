@@ -18,6 +18,7 @@ function runProgram(A = []) {
         break;
     }
   }
+  return A;
 }
 function part1(rawInput) {
   const A = parseInput(rawInput);
@@ -27,8 +28,8 @@ function part1(rawInput) {
 }
 function part2(rawInput) {
   const A = parseInput(rawInput);
-  for (let i = 0; i < 100; i++) {
-    for (let j = 0; j < 100; j++) {
+  for (let i = 0; i < 100; i += 1) {
+    for (let j = 0; j < 100; j += 1) {
       const B = [...A];
       B[1] = i;
       B[2] = j;

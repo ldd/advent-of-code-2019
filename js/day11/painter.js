@@ -27,21 +27,10 @@ function paint(color, turnDirection) {
   // turn left or right
   if (turnDirection === LEFT) direction = (direction + 270) % 360;
   else if (turnDirection === RIGHT) direction = (direction + 90) % 360;
-
-  switch (direction) {
-    case 0:
-      position -= COLS;
-      break;
-    case 90:
-      position += 1;
-      break;
-    case 180:
-      position += COLS;
-      break;
-    case 270:
-      position -= 1;
-      break;
-  }
+  if (direction === 0) position -= COLS;
+  else if (direction === 90) position += 1;
+  else if (direction === 180) position += COLS;
+  else if (direction === 270) position -= 1;
   return canvas[position];
 }
 const printPoint = point => (point === 0 ? "." : "#");

@@ -46,11 +46,11 @@ function part2(rawInput) {
   const layers = prepareLayers(A);
 
   // we were asked to start from the last layer in the input, so we use reduceRight
-  const layer = layers.reduceRight((previousLayer, layer) =>
+  const pickedLayer = layers.reduceRight((previousLayer, layer) =>
     layer.map((entry, i) => (entry === 2 ? previousLayer[i] : entry))
   );
 
-  return printLayer(layer);
+  return printLayer(pickedLayer);
 }
 
 module.exports = { part1, part2 };

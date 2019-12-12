@@ -6,10 +6,10 @@ function parseInput(rawInput = "") {
 // we want to evaluate a condition that at least one of these counts matches
 const initialCount = Array(10).fill(0);
 function hasValidDigits(digits, condition) {
-  let counts = [...initialCount];
-  for (let i = 0; i < digits.length - 1; i++) {
+  const counts = [...initialCount];
+  for (let i = 0; i < digits.length - 1; i += 1) {
     if (digits[i] > digits[i + 1]) return false;
-    if (digits[i] === digits[i + 1]) counts[digits[i]]++;
+    if (digits[i] === digits[i + 1]) counts[digits[i]] += 1;
   }
   return counts.some(condition);
 }
@@ -17,11 +17,11 @@ function hasValidDigits(digits, condition) {
 function part1(rawInput, condition = count => count >= 1) {
   const [begin, end] = parseInput(rawInput);
   let count = 0;
-  for (let i = begin; i < end; i++) {
+  for (let i = begin; i < end; i += 1) {
     const digits = String(i)
       .split("")
       .map(Number);
-    if (hasValidDigits(digits, condition)) count++;
+    if (hasValidDigits(digits, condition)) count += 1;
   }
   return count;
 }
@@ -29,7 +29,7 @@ function part1(rawInput, condition = count => count >= 1) {
 // instead of asking for at least 1 repetition, like in part 1
 // we ask for exactly 1 repetition
 function part2(rawInput) {
-  return part1(rawInput, count => count == 1);
+  return part1(rawInput, count => count === 1);
 }
 
 module.exports = { part1, part2 };

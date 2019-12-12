@@ -52,7 +52,7 @@ function runIntcodeProgram(A = [], input = []) {
         break;
       }
       case 99:
-        return;
+        return A;
       default:
         j = Infinity;
         break;

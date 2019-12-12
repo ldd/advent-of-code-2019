@@ -22,7 +22,7 @@ function part1(rawInput) {
           const angle = Math.atan2(dx, dy);
           const key = `${angle},${Math.sign(dx)},${Math.sign(dy)}`;
 
-          if (!dic[key]) dic.count++;
+          if (!dic[key]) dic.count += 1;
           return { ...dic, [key]: true, count: dic.count };
         },
         { count: 0 }
