@@ -1,5 +1,4 @@
 const A = [];
-// let lastPosition = [];
 let ballPosition = [];
 let paddlePosition = [];
 const types = [
@@ -14,10 +13,8 @@ const [EMPTY, WALL, BLOCK, PADDLE, BALL] = types;
 function fillTile(x, y, tileId) {
   if (A[y] === undefined) A[y] = [];
   A[y][x] = types[tileId];
-  // lastPosition = ballPosition;
   if (types[tileId] === BALL) ballPosition = [x, y];
   if (types[tileId] === PADDLE) paddlePosition = [x, y];
-  // console.log(printBoard());
 }
 
 function printBoard() {
@@ -47,11 +44,10 @@ function getBlockCount() {
 }
 
 function getBestMove() {
-  const [ballX] = ballPosition;
-  const [paddleX] = paddlePosition;
-  if (ballX - paddleX > 1) return 1;
-  if (ballX - paddleX < 1) return -1;
-  return 0;
+  const [ballX, ballY] = ballPosition;
+  const [paddleX, paddleY] = paddlePosition;
+  if (paddleY - ballY < 1) return 0;
+  return Math.sign(ballX - paddleX);
 }
 
 module.exports = {

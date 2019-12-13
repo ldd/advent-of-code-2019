@@ -41,8 +41,8 @@ function part2(rawInput) {
     }
     const y = instance.next();
     const tileId = instance.next();
-    if (x === -1 && y === 0) {
-      score = tileId;
+    if (x.value === -1 && y.value === 0) {
+      score = tileId.value;
     } else {
       fillTile(x.value, y.value, tileId.value);
     }
