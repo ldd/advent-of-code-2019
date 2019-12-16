@@ -23,9 +23,7 @@ function getAllRecipes(A = []) {
   }, {});
 }
 
-function performReaction(allRecipes, n = 1) {
-  const inventory = {};
-
+function performReaction(allRecipes, n = 1, inventory = {}) {
   function triggerReaction(recipeKey, amount) {
     const { ingredients, quantity: recipeQuantity } = allRecipes[recipeKey];
     const neededRatio = Math.ceil(amount / recipeQuantity);
@@ -48,16 +46,33 @@ function performReaction(allRecipes, n = 1) {
   return triggerReaction("FUEL", n);
 }
 
+// definitely got this with help: https://github.com/fmeynard/AdventOfCode/blob/master/2019/p14.js
+// mainly to calculate the proper ratio in `performReaction` (everything else I had)
 function part1(rawInput) {
   const A = parseInput(rawInput);
-
   const allRecipes = getAllRecipes(A);
   const { ORE } = performReaction(allRecipes, 1);
   return Math.abs(ORE);
 }
+
+// because we are dealing with a relatively big initial inventory of ore,
+// our initial step is relatively big
+function getMaxFuel(allRecipes, inventory = {}, step = 800) {
+  for (;;) {
+    const previousInventory = JSON.parse(JSON.stringify(inventory));
+    inventory = performReaction(allRecipes, step, inventory);
+    if (inventory.ORE < 0) {
+      if (step <= 1) return previousInventory;
+      return getMaxFuel(allRecipes, previousInventory, Math.floor(step / 2));
+    }
+  }
+}
+
 function part2(rawInput) {
   const A = parseInput(rawInput);
-  return +A;
+  const allRecipes = getAllRecipes(A);
+  const { FUEL } = getMaxFuel(allRecipes, { ORE: 1e12 });
+  return FUEL;
 }
 
 module.exports = { part1, part2 };
