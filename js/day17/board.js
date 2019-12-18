@@ -140,10 +140,7 @@ function getSimplifiedPath() {
 
 function getPath() {
   return getSimplifiedPath().map(program =>
-    `${program}\n`
-      .split("")
-      .map(char => char.charCodeAt(0))
-      .join("")
+    `${program}\n`.split("").map(char => char.charCodeAt(0))
   );
 }
 

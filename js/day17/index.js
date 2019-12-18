@@ -26,13 +26,23 @@ function part1(rawInput) {
   return getIntersectionSum();
 }
 
-function getResultFromProgram2(A = [], programs = []) {
+function getResultFromProgram2(A = [], programArray = []) {
   resetBoard();
   A[0] = 2;
-  const instance = runIntcodeProgram([...A], programs[0], false);
-  let result = instance.next(programs[1]);
+  let i = 0;
+  const instance = runIntcodeProgram([...A], programArray[i].shift(), false);
+  let result = { value: undefined, done: false };
   while (result.done === false) {
-    result = instance.next(1);
+    const oldValue = result.value;
+    result = instance.next();
+    if (result.value === undefined) {
+      if (!programArray[i]) return oldValue;
+      while (programArray[i].length > 0) {
+        const n = programArray[i].shift();
+        result = instance.next(n);
+      }
+      i += 1;
+    }
   }
   return result.value;
 }
@@ -41,10 +51,10 @@ function getResultFromProgram2(A = [], programs = []) {
 function part2(rawInput) {
   const input = parseInput(rawInput);
   getResultFromProgram(input);
-  const programs = getPath();
-  // .join("")
-  // .slice(0, -2);
-  return getResultFromProgram2(input, programs);
+  const programArray = getPath();
+  // make sure to finish with denying the video feed
+  programArray.push(["n", "\n"].map(e => e.charCodeAt(0)));
+  return getResultFromProgram2(input, programArray);
 }
 
 module.exports = { part1, part2 };
