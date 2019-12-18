@@ -8,4 +8,8 @@ function lcm(a, b) {
   return (a * b) / gcd(a, b);
 }
 
-module.exports = { gcd, lcm };
+function randomInArray(A = []) {
+  return A[Math.floor(Math.random() * A.length) % A.length];
+}
+
+module.exports = { gcd, lcm, randomInArray };

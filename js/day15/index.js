@@ -15,12 +15,26 @@ function getResultFromProgram(A = []) {
   const instance = runIntcodeProgram([...A], getNextMove(), true);
 
   let result = instance.next();
-  while (result.done === false) {
-    if (reportStatus(result.value)) break;
-    instance.next();
-    result = instance.next(getNextMove());
-    drawCanvas();
-  }
+  // while (result.done === false) {
+  if (reportStatus(result.value)) console.log("break");
+  instance.next();
+  result = instance.next(getNextMove());
+  drawCanvas();
+  // }
+  if (reportStatus(result.value)) console.log("break");
+  instance.next();
+  result = instance.next(getNextMove());
+  drawCanvas();
+
+  if (reportStatus(result.value)) console.log("break");
+  instance.next();
+  result = instance.next(getNextMove());
+  drawCanvas();
+
+  if (reportStatus(result.value)) console.log("break");
+  instance.next();
+  result = instance.next(getNextMove());
+  drawCanvas();
 }
 
 function part1(rawInput) {
