@@ -1,9 +1,9 @@
 const { runIntcodeProgram } = require("../day7/intcode");
 const {
-  resetBoard,
-  getIntersectionSum,
   fillTile,
-  drawCanvas
+  getIntersectionSum,
+  getPath,
+  resetBoard
 } = require("./board");
 
 function parseInput(rawInput = "") {
@@ -18,7 +18,6 @@ function getResultFromProgram(A = [], mode = 1) {
     result = instance.next();
     fillTile(result.value);
   }
-  // drawCanvas();
 }
 
 function part1(rawInput) {
@@ -26,9 +25,26 @@ function part1(rawInput) {
   getResultFromProgram(input);
   return getIntersectionSum();
 }
+
+function getResultFromProgram2(A = [], programs = []) {
+  resetBoard();
+  A[0] = 2;
+  const instance = runIntcodeProgram([...A], programs[0], false);
+  let result = instance.next(programs[1]);
+  while (result.done === false) {
+    result = instance.next(1);
+  }
+  return result.value;
+}
+
+// ans bigger than 10k
 function part2(rawInput) {
   const input = parseInput(rawInput);
-  return null;
+  getResultFromProgram(input);
+  const programs = getPath();
+  // .join("")
+  // .slice(0, -2);
+  return getResultFromProgram2(input, programs);
 }
 
 module.exports = { part1, part2 };
