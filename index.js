@@ -13,7 +13,7 @@ function getInput(day = 1) {
 
 const day = process.argv[2];
 if (day) {
-  input = getInput(day);
+  const input = getInput(day);
   const { part1, part2 } = require(`./js/day${day}/index.js`);
   console.log("part 1's result:\t", part1(input));
   console.log("part 2's result:\t", part2(input));
