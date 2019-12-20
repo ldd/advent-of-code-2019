@@ -108,7 +108,19 @@ function getNextMove() {
     move = getDirection(nodeKey);
     if (move === null) {
       queue.push(nodeKey);
-      move = randomInArray(directions);
+
+      // if position is an ancestor to nodeKey, move to it
+      // otherwise move to position's ancestor
+      // (we are trying to find the common ancestor of nodeKey and position)
+      let ancestorKey = nodeKey;
+      while (
+        nodes[ancestorKey].parentKey !== null &&
+        getDirection(ancestorKey) === null
+      ) {
+        ancestorKey = nodes[ancestorKey].parentKey;
+      }
+      move =
+        getDirection(ancestorKey) || getDirection(nodes[position].parentKey);
     }
   }
   return move || randomInArray(directions); // excellent AI. best AI
