@@ -21,12 +21,7 @@ function drawCanvas() {
     }
     s += "\n";
   }
-  console.log(
-    s
-      .split("\n")
-      .filter(f => f.includes("#") || f.includes("D") || f.includes("."))
-      .join("\n")
-  );
+  return s;
 }
 
 const directions = [1, 2, 3, 4];
@@ -88,21 +83,18 @@ function getNextPosition(lastMove) {
 }
 
 function getDirection(to, from = position) {
+  if (to === null) return null;
   if (to[0] === from[0]) {
-    if (to[1] < from[1]) return NORTH;
-    if (to[1] > from[1]) return SOUTH;
+    if (from[1] - to[1] === 1) return NORTH;
+    if (from[1] - to[1] === -1) return SOUTH;
     return null;
   }
   if (to[1] === from[1]) {
-    if (to[0] < from[0]) return WEST;
-    if (to[0] > from[0]) return EAST;
+    if (from[0] - to[0] === 1) return WEST;
+    if (from[0] - to[0] === -1) return EAST;
     return null;
   }
   return null;
-}
-
-function isPosition(otherPosition) {
-  return otherPosition[0] === position[0] && otherPosition[0] === position[0];
 }
 
 let move = null;
@@ -118,10 +110,6 @@ function getNextMove() {
       queue.push(nodeKey);
       move = randomInArray(directions);
     }
-  } else {
-    // console.log("b", nodes[position], position);
-    // resetQueue(nodes[position].parentKey);
-    // move = getDirection(nodes[position].parentKey);
   }
   return move || randomInArray(directions); // excellent AI. best AI
 }
@@ -133,10 +121,10 @@ function draw(tileId = SPACE) {
   return [x, y];
 }
 
-function getAncestorCount(currentNodeKey = position) {
+function getAncestorCount(currentKey = position) {
   let counter = 0;
-  while (nodes[currentNodeKey].parentKey !== null) {
-    currentNodeKey = nodes[currentNodeKey].parentKey;
+  while (nodes[currentKey].parentKey !== null) {
+    currentKey = nodes[currentKey].parentKey;
     counter += 1;
   }
   return counter;

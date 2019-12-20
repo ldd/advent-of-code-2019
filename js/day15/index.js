@@ -1,10 +1,5 @@
 const { runIntcodeProgram } = require("../day7/intcode");
-const {
-  drawCanvas,
-  resetCanvas,
-  getNextMove,
-  reportStatus
-} = require("./repairer");
+const { resetCanvas, getNextMove, reportStatus } = require("./repairer");
 
 function parseInput(rawInput = "") {
   return rawInput.split(",").map(Number);
@@ -21,8 +16,9 @@ function getResultFromProgram(A = []) {
     instance.next();
     result = instance.next(getNextMove());
     // console.log("\n\n");
-    // drawCanvas();
+    // console.log(drawCanvas());
   }
+  return -1;
 }
 
 function part1(rawInput) {
