@@ -1,4 +1,4 @@
-const { shuffle, randomInArray } = require("../utils");
+const { randomInArray } = require("../utils");
 
 const canvas = Array(100)
   .fill()
@@ -6,7 +6,7 @@ const canvas = Array(100)
 const startPosition = [50, 50];
 let position = [...startPosition];
 let machinePosition = null;
-const queue = [];
+const stack = [];
 let nodes = {};
 
 const [WALL, SPACE, DROID, MACHINE, UNKNOWN] = ["#", ".", "D", "@", " "];
@@ -29,12 +29,12 @@ const directions = [1, 2, 3, 4];
 const [NORTH, SOUTH, WEST, EAST] = directions;
 
 function makeChildren(currentPosition) {
-  return shuffle([
+  return [
     [currentPosition[0], currentPosition[1] - 1],
     [currentPosition[0], currentPosition[1] + 1],
     [currentPosition[0] - 1, currentPosition[1]],
     [currentPosition[0] + 1, currentPosition[1]]
-  ]);
+  ];
 }
 
 function pushChildren(nodeKey) {
@@ -53,7 +53,7 @@ function pushChildren(nodeKey) {
       nodes[childKey].parentKey = nodeKey;
     }
     if (!nodes[childKey].visited) {
-      queue.push(childKey);
+      stack.push(childKey);
     }
   }
 }
@@ -62,7 +62,7 @@ function resetCanvas() {
   canvas.length = 0;
   position = [...startPosition];
   machinePosition = null;
-  queue.length = 0;
+  stack.length = 0;
   nodes = {
     [startPosition]: { visited: true, parentKey: null, childrenKeys: null }
   };
@@ -72,13 +72,13 @@ function resetCanvas() {
 function getNextPosition(lastMove) {
   switch (lastMove) {
     case NORTH:
-      return [position[0], position[1] - 1, NORTH];
+      return [position[0], position[1] - 1];
     case SOUTH:
-      return [position[0], position[1] + 1, SOUTH];
+      return [position[0], position[1] + 1];
     case WEST:
-      return [position[0] - 1, position[1], WEST];
+      return [position[0] - 1, position[1]];
     case EAST:
-      return [position[0] + 1, position[1], EAST];
+      return [position[0] + 1, position[1]];
     default:
       return position;
   }
@@ -100,20 +100,17 @@ function getDirection(to, from = position) {
 }
 
 let move = null;
-// let MUST_RETURN = false;
 function getNextMove() {
-  // console.log(queue);
-  if (queue.length > 0) {
-    const nodeKey = queue.pop();
+  if (stack.length > 0) {
+    const nodeKey = stack.pop();
     const node = nodes[nodeKey];
     node.visited = true;
     move = getDirection(nodeKey);
-    if (move === null) {
-      queue.push(nodeKey);
 
-      // if position is an ancestor to nodeKey, move to it
-      // otherwise move to position's ancestor
-      // (we are trying to find the common ancestor of nodeKey and position)
+    // impossible to move, find a path from position to nodeKey
+    if (move === null) {
+      stack.push(nodeKey);
+
       let ancestorKey = nodeKey;
       while (
         nodes[ancestorKey].parentKey !== null &&
@@ -121,11 +118,13 @@ function getNextMove() {
       ) {
         ancestorKey = nodes[ancestorKey].parentKey;
       }
+      // if position is an ancestor to nodeKey, move to it
+      // otherwise move to position's ancestor
       move =
         getDirection(ancestorKey) || getDirection(nodes[position].parentKey);
     }
   }
-  return move || randomInArray(directions); // excellent AI. best AI
+  return move || randomInArray(directions);
 }
 
 function draw(tileId = SPACE) {
@@ -137,7 +136,9 @@ function draw(tileId = SPACE) {
 
 const machineAncestorDic = {};
 
-function getMachineAncestorDic() {
+// from machinePosition, populate a dictionary with counts to machinePosition
+// return the count from root
+function setupMachineAncestorCounts() {
   let counter = 0;
   let currentKey = machinePosition;
   while (nodes[currentKey].parentKey !== null) {
@@ -157,10 +158,12 @@ function getCountToMachineAncestor(currentKey = position) {
   return counter + machineAncestorDic[currentKey] - 1;
 }
 function getOxygenDistance() {
+  if (!machinePosition || stack.length > 0) return -1;
+
   const leafs = Object.entries(nodes).filter(
     ([, node]) => node.childrenKeys === null
   );
-  getMachineAncestorDic();
+  setupMachineAncestorCounts();
   return leafs.reduce((maxCount, [key]) => {
     const count = getCountToMachineAncestor(key);
     if (maxCount > count) return maxCount;
@@ -173,10 +176,7 @@ function getOxygenDistance() {
 // 2: The repair droid has moved and found the oxygen system.
 const [WALLED, MOVED, FOUND] = [0, 1, 2];
 
-function reportStatus(status, fullyExplore = false) {
-  if (machinePosition && queue.length === 0) {
-    return getOxygenDistance();
-  }
+function handleStatus(status) {
   switch (status) {
     case WALLED: {
       draw(WALL);
@@ -190,13 +190,23 @@ function reportStatus(status, fullyExplore = false) {
     case FOUND: {
       position = draw(MACHINE);
       machinePosition = position;
-      const distanceToMachine = getMachineAncestorDic();
-      if (fullyExplore) return false;
+      const distanceToMachine = setupMachineAncestorCounts();
       return distanceToMachine;
     }
     default:
       return false;
   }
+}
+function reportStatus(status) {
+  return handleStatus(status);
+}
+
+function reportOxygenStatus(status, fullyExplore = true) {
+  if (fullyExplore && machinePosition && stack.length === 0) {
+    return getOxygenDistance();
+  }
+  handleStatus(status);
+  return false;
 }
 
 module.exports = {
@@ -204,5 +214,5 @@ module.exports = {
   resetCanvas,
   getNextMove,
   reportStatus,
-  getOxygenDistance
+  reportOxygenStatus
 };
