@@ -1,11 +1,10 @@
-// const { randomInArray } = require("../utils");
+const { shuffle, randomInArray } = require("../utils");
 
 const canvas = Array(100)
   .fill()
   .map(() => []);
 const startPosition = [50, 50];
 let position = [...startPosition];
-let lastPosition = [];
 const queue = [];
 let nodes = {};
 
@@ -34,12 +33,12 @@ const directions = [1, 2, 3, 4];
 const [NORTH, SOUTH, WEST, EAST] = directions;
 
 function makeChildren(currentPosition) {
-  return [
+  return shuffle([
     [currentPosition[0], currentPosition[1] - 1],
     [currentPosition[0], currentPosition[1] + 1],
     [currentPosition[0] - 1, currentPosition[1]],
     [currentPosition[0] + 1, currentPosition[1]]
-  ];
+  ]);
 }
 
 function pushChildren(nodeKey) {
@@ -47,13 +46,16 @@ function pushChildren(nodeKey) {
   if (!node) return;
   if (node.childrenKeys) return;
   node.childrenKeys = makeChildren(nodeKey);
+
   for (let i = 0; i < node.childrenKeys.length; i += 1) {
     const childKey = node.childrenKeys[i];
     nodes[childKey] = nodes[childKey] || {
       visited: false,
       childrenKeys: null
     };
-    nodes[childKey].parentKey = nodeKey;
+    if (nodes[childKey].parentKey === undefined) {
+      nodes[childKey].parentKey = nodeKey;
+    }
     if (!nodes[childKey].visited) {
       queue.push(childKey);
     }
@@ -63,7 +65,6 @@ function pushChildren(nodeKey) {
 function resetCanvas() {
   canvas.length = 0;
   position = [...startPosition];
-  lastPosition = [];
   queue.length = 0;
   nodes = {
     [startPosition]: { visited: true, parentKey: null, childrenKeys: null }
@@ -86,36 +87,43 @@ function getNextPosition(lastMove) {
   }
 }
 
-function getDirection(p1, p2 = position) {
-  if (p1[0] === p2[0]) {
-    if (p1[1] < p2[1]) return NORTH;
-    if (p1[1] > p2[1]) return SOUTH;
+function getDirection(to, from = position) {
+  if (to[0] === from[0]) {
+    if (to[1] < from[1]) return NORTH;
+    if (to[1] > from[1]) return SOUTH;
     return null;
   }
-  if (p1[1] === p2[1]) {
-    if (p1[0] < p2[0]) return WEST;
-    if (p1[0] > p2[0]) return EAST;
+  if (to[1] === from[1]) {
+    if (to[0] < from[0]) return WEST;
+    if (to[0] > from[0]) return EAST;
     return null;
   }
   return null;
 }
 
-function hasChangedPosition() {
-  return lastPosition[0] !== position[0] && lastPosition[0] !== position[0];
+function isPosition(otherPosition) {
+  return otherPosition[0] === position[0] && otherPosition[0] === position[0];
 }
 
 let move = null;
-let MUST_RETURN = false;
+// let MUST_RETURN = false;
 function getNextMove() {
-  // move = randomInArray(directions);   // excellent AI. best AI
+  // console.log(queue);
   if (queue.length > 0) {
     const nodeKey = queue.pop();
     const node = nodes[nodeKey];
     node.visited = true;
     move = getDirection(nodeKey);
+    if (move === null) {
+      queue.push(nodeKey);
+      move = randomInArray(directions);
+    }
+  } else {
+    // console.log("b", nodes[position], position);
+    // resetQueue(nodes[position].parentKey);
+    // move = getDirection(nodes[position].parentKey);
   }
-  if (move === null) MUST_RETURN = true;
-  return move || EAST;
+  return move || randomInArray(directions); // excellent AI. best AI
 }
 
 function draw(tileId = SPACE) {
@@ -125,13 +133,21 @@ function draw(tileId = SPACE) {
   return [x, y];
 }
 
+function getAncestorCount(currentNodeKey = position) {
+  let counter = 0;
+  while (nodes[currentNodeKey].parentKey !== null) {
+    currentNodeKey = nodes[currentNodeKey].parentKey;
+    counter += 1;
+  }
+  return counter;
+}
+
 // 0: The repair droid hit a wall. Its position has not changed.
 // 1: The repair droid has moved one step in the requested direction.
 // 2: The repair droid has moved and found the oxygen system.
 const [WALLED, MOVED, FOUND] = [0, 1, 2];
 function reportStatus(status) {
-  lastPosition = [...position];
-  if (MUST_RETURN) return true;
+  // if (MUST_RETURN) return true;
   switch (status) {
     case WALLED: {
       draw(WALL);
@@ -144,7 +160,7 @@ function reportStatus(status) {
     }
     case FOUND: {
       position = draw(MACHINE);
-      return true;
+      return getAncestorCount();
     }
     default:
       return false;

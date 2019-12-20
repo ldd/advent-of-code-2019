@@ -16,11 +16,12 @@ function getResultFromProgram(A = []) {
 
   let result = instance.next();
   while (result.done === false) {
-    if (reportStatus(result.value)) break;
+    const count = reportStatus(result.value);
+    if (count) return count;
     instance.next();
     result = instance.next(getNextMove());
-    console.log("\n\n");
-    drawCanvas();
+    // console.log("\n\n");
+    // drawCanvas();
   }
 }
 
