@@ -5,6 +5,7 @@ const canvas = Array(100)
   .map(() => []);
 const startPosition = [50, 50];
 let position = [...startPosition];
+let machinePosition = null;
 const queue = [];
 let nodes = {};
 
@@ -60,6 +61,7 @@ function pushChildren(nodeKey) {
 function resetCanvas() {
   canvas.length = 0;
   position = [...startPosition];
+  machinePosition = null;
   queue.length = 0;
   nodes = {
     [startPosition]: { visited: true, parentKey: null, childrenKeys: null }
@@ -133,21 +135,48 @@ function draw(tileId = SPACE) {
   return [x, y];
 }
 
-function getAncestorCount(currentKey = position) {
+const machineAncestorDic = {};
+
+function getMachineAncestorDic() {
   let counter = 0;
+  let currentKey = machinePosition;
   while (nodes[currentKey].parentKey !== null) {
+    machineAncestorDic[currentKey] = counter;
     currentKey = nodes[currentKey].parentKey;
     counter += 1;
   }
   return counter;
 }
 
+function getCountToMachineAncestor(currentKey = position) {
+  let counter = 0;
+  while (currentKey !== null && !machineAncestorDic[currentKey]) {
+    currentKey = nodes[currentKey].parentKey;
+    counter += 1;
+  }
+  return counter + machineAncestorDic[currentKey] - 1;
+}
+function getOxygenDistance() {
+  const leafs = Object.entries(nodes).filter(
+    ([, node]) => node.childrenKeys === null
+  );
+  getMachineAncestorDic();
+  return leafs.reduce((maxCount, [key]) => {
+    const count = getCountToMachineAncestor(key);
+    if (maxCount > count) return maxCount;
+    return count;
+  }, 0);
+}
+
 // 0: The repair droid hit a wall. Its position has not changed.
 // 1: The repair droid has moved one step in the requested direction.
 // 2: The repair droid has moved and found the oxygen system.
 const [WALLED, MOVED, FOUND] = [0, 1, 2];
-function reportStatus(status) {
-  // if (MUST_RETURN) return true;
+
+function reportStatus(status, fullyExplore = false) {
+  if (machinePosition && queue.length === 0) {
+    return getOxygenDistance();
+  }
   switch (status) {
     case WALLED: {
       draw(WALL);
@@ -160,11 +189,20 @@ function reportStatus(status) {
     }
     case FOUND: {
       position = draw(MACHINE);
-      return getAncestorCount();
+      machinePosition = position;
+      const distanceToMachine = getMachineAncestorDic();
+      if (fullyExplore) return false;
+      return distanceToMachine;
     }
     default:
       return false;
   }
 }
 
-module.exports = { drawCanvas, resetCanvas, getNextMove, reportStatus };
+module.exports = {
+  drawCanvas,
+  resetCanvas,
+  getNextMove,
+  reportStatus,
+  getOxygenDistance
+};

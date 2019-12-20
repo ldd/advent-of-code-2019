@@ -5,18 +5,16 @@ function parseInput(rawInput = "") {
   return rawInput.split(",").map(Number);
 }
 
-function getResultFromProgram(A = []) {
+function getResultFromProgram(A = [], fullyExplore = false) {
   resetCanvas();
   const instance = runIntcodeProgram([...A], getNextMove(), true);
 
   let result = instance.next();
   while (result.done === false) {
-    const count = reportStatus(result.value);
+    const count = reportStatus(result.value, fullyExplore);
     if (count) return count;
     instance.next();
     result = instance.next(getNextMove());
-    // console.log("\n\n");
-    // console.log(drawCanvas());
   }
   return -1;
 }
@@ -28,7 +26,7 @@ function part1(rawInput) {
 
 function part2(rawInput) {
   const A = parseInput(rawInput);
-  return null;
+  return getResultFromProgram(A, true);
 }
 
 module.exports = { part1, part2 };
