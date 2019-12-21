@@ -1,5 +1,6 @@
-let vault = [];
+const { shuffle } = require("../utils");
 
+let vault = [];
 let root = [];
 let visited = {};
 let keys = {};
@@ -27,12 +28,12 @@ const isDoor = (x, y) => /^[A-Z]$/.test(vault[y][x]);
 const isKey = (x, y) => /^[a-z]$/.test(vault[y][x]);
 
 function makeChildren(currentPosition) {
-  return [
+  return shuffle([
     [currentPosition[0], currentPosition[1] - 1],
     [currentPosition[0], currentPosition[1] + 1],
     [currentPosition[0] - 1, currentPosition[1]],
     [currentPosition[0] + 1, currentPosition[1]]
-  ].filter(([x, y]) => vault[y] && vault[y][x] !== undefined);
+  ]).filter(([x, y]) => vault[y] && vault[y][x] !== undefined);
 }
 
 function dfs(node = root) {
@@ -42,9 +43,10 @@ function dfs(node = root) {
   if (isWall(x, y)) return;
   if (isKey(x, y)) keys[vault[y][x]] = node;
   if (isDoor(x, y)) {
-    console.log("found door at", x, y);
-    if (keys[vault[y][x]] === undefined) return;
-    keys[vault[y][x]] = undefined;
+    const door = vault[y][x];
+    const key = door.toLowerCase();
+    if (keys[key] === undefined) return;
+    keys[key] = undefined;
   }
 
   makeChildren([x, y]).forEach(child => (visited[child] ? null : dfs(child)));
