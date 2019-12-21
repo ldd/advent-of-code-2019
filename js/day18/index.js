@@ -14,8 +14,8 @@ function parseInput(rawInput = "") {
 
 function part1(rawInput) {
   const A = parseInput(rawInput);
-  initialize(A);
-  return something();
+  const root = initialize(A);
+  return something(root);
 }
 function part2() {
   return null;
