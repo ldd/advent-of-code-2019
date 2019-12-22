@@ -31,15 +31,15 @@ function initialize(A = []) {
   return root;
 }
 
-function exploreVault(root, keys = {}, doors = {}) {
-  let nodes = {};
+function exploreVault(root, keys = {}) {
   let steps = 0;
 
-  function dfs(node = root) {
+  function dfs(node = root, depth = 0, nodes = {}) {
     nodes[node] = { visited: true };
 
     const [x, y] = node;
     if (isKey(x, y) && keys[vault[y][x]] === undefined) {
+      steps += depth;
       return node;
     }
     let pickedChild = null;
@@ -51,7 +51,7 @@ function exploreVault(root, keys = {}, doors = {}) {
         isDoor(i, j) && keys[doorKey.toLowerCase()] === undefined;
       if (!isWall(x, y) && !isVisited && !isClosedDoor) {
         nodes[childKey] = { visited: true };
-        pickedChild = dfs(childKey);
+        pickedChild = dfs(childKey, depth + 1, nodes);
         return pickedChild !== null;
       }
       return false;
@@ -60,15 +60,17 @@ function exploreVault(root, keys = {}, doors = {}) {
   }
   function runVault() {
     let node = dfs();
+    let sum = 0;
     while (node !== null) {
       const [x, y] = node;
       const key = vault[y][x];
       keys[key] = node;
-      nodes = {};
+      sum += steps;
+      steps = 0;
       node = dfs([x, y]);
-      console.log(keys);
     }
-    return node;
+    console.log(sum);
+    return sum;
   }
   return runVault();
 }

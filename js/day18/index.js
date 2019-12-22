@@ -1,11 +1,11 @@
 const { initialize, something } = require("./vault");
 
 function parseInput(rawInput = "") {
-  rawInput = `
-  #########
-  #b.A.@.a#
-  #########
-  `;
+  // rawInput = `
+  // #########
+  // #b.A.@.a#
+  // #########
+  // `;
   rawInput = `
   ########################
   #f.D.E.e.C.b.A.@.a.B.c.#
