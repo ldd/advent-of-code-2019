@@ -2,10 +2,17 @@ const { initialize, something } = require("./vault");
 
 function parseInput(rawInput = "") {
   rawInput = `
-#########
-#b.A.@.a#
-#########
-`;
+  #########
+  #b.A.@.a#
+  #########
+  `;
+  rawInput = `
+  ########################
+  #f.D.E.e.C.b.A.@.a.B.c.#
+  ######################.#
+  #d.....................#
+  ########################
+  `;
   return rawInput
     .split("\n")
     .filter(Boolean)

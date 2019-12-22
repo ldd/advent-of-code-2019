@@ -31,34 +31,52 @@ function initialize(A = []) {
   return root;
 }
 
-function exploreVault(root, f = a => a) {
-  const visited = {};
-  const keys = {};
+function exploreVault(root, keys = {}, doors = {}) {
+  let nodes = {};
+  let steps = 0;
 
   function dfs(node = root) {
-    visited[node] = true;
+    nodes[node] = { visited: true };
 
     const [x, y] = node;
-    if (isWall(x, y)) return;
-    if (isKey(x, y)) keys[vault[y][x]] = node;
-    if (isDoor(x, y)) {
-      const door = vault[y][x];
-      const key = door.toLowerCase();
-      if (keys[key] === undefined) return;
-      keys[key] = undefined;
+    if (isKey(x, y) && keys[vault[y][x]] === undefined) {
+      return node;
     }
-
-    f(makeChildren([x, y])).forEach(child =>
-      visited[child] ? null : dfs(child)
-    );
+    let pickedChild = null;
+    shuffle(makeChildren([x, y])).some(childKey => {
+      const [i, j] = childKey;
+      const isVisited = nodes[childKey] && nodes[childKey].visited;
+      const doorKey = vault[j][i];
+      const isClosedDoor =
+        isDoor(i, j) && keys[doorKey.toLowerCase()] === undefined;
+      if (!isWall(x, y) && !isVisited && !isClosedDoor) {
+        nodes[childKey] = { visited: true };
+        pickedChild = dfs(childKey);
+        return pickedChild !== null;
+      }
+      return false;
+    });
+    return pickedChild;
   }
-  dfs();
-  return { keys };
+  function runVault() {
+    let node = dfs();
+    while (node !== null) {
+      const [x, y] = node;
+      const key = vault[y][x];
+      keys[key] = node;
+      nodes = {};
+      node = dfs([x, y]);
+      console.log(keys);
+    }
+    return node;
+  }
+  return runVault();
 }
 
 function something(node) {
-  console.log(exploreVault(node, a => a));
-  console.log(exploreVault(node, a => [...a].reverse()));
-  return exploreVault(node);
+  // for (let i = 0; i < 5; i += 1) {
+  exploreVault(node);
+  // }
+  // return 1;
 }
 module.exports = { initialize, something };
