@@ -24,28 +24,43 @@ function runInstances(A = []) {
     return [destination, receivedX, receivedY];
   };
 
+  let natResult = null;
   for (;;) {
-    let result = null;
-    const foundResult = instances
-      .map(handler)
-      .some(([destination, x, y] = []) => {
-        if (destination === 255) {
-          result = y;
-          return true;
-        }
-        if (destination !== undefined) {
-          if (messages[destination]) messages[destination].push([x, y]);
-        }
+    let deferedResult = null;
+    const results = instances.map(handler);
+
+    const foundResult = results.some(([destination, x, y] = []) => {
+      if (destination === 255) {
+        deferedResult = [x, y];
         return false;
-      });
-    if (foundResult) return result;
+        // return true;
+      }
+      if (destination !== undefined) {
+        if (messages[destination]) messages[destination].push([x, y]);
+      }
+      return false;
+    });
+    if (foundResult) return deferedResult;
+
+    const idleResults = results.filter(
+      result => result.every(value => value === undefined) || result[0] === 255
+    );
+    const emptyMessages = messages.filter(m => m.length === 0);
+    if (emptyMessages.length === 50 && idleResults.length === 50) {
+      natResult = deferedResult || natResult;
+      if (natResult) {
+        console.log(natResult);
+        messages[0].push(natResult.concat(true));
+      }
+    }
   }
 }
 
 function part1(rawInput) {
   const A = parseInput(rawInput);
-  return runInstances(A);
+  return runInstances(A)[1];
 }
+// too low: 2572
 function part2(rawInput) {
   const A = parseInput(rawInput);
   return null;
