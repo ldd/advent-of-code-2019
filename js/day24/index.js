@@ -135,6 +135,8 @@ function part2(rawInput) {
     states = states.map((state, depth) => tickDeep(states, depth + MIN_DEPTH));
   }
   return states;
+  // const allBugs = states.flat(2).filter(tile => tile === "#");
+  // return allBugs.length;
 }
 
 module.exports = { part1, part2 };
