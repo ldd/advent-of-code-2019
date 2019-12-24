@@ -28,29 +28,31 @@ function getNeighbours(x, y, depth, rows = ROWS, cols = COLS) {
       if (y === 0) return close.concat([[MID, MID - 1, depth - 1]]);
       if (y === ROWS - 1) return close.concat([[MID, MID + 1, depth - 1]]);
     }
-    if (x === MID - 1 && y === MID) {
-      const firstLine = Array(ROWS)
-        .fill()
-        .map((_, j) => [0, j, depth + 1]);
-      return close.concat(firstLine);
-    }
-    if (x === MID + 1 && y === MID) {
-      const firstLine = Array(ROWS)
-        .fill()
-        .map((_, j) => [COLS - 1, j, depth + 1]);
-      return close.concat(firstLine);
-    }
-    if (x === MID && y === MID - 1) {
-      const firstLine = Array(COLS)
-        .fill()
-        .map((_, i) => [i, 0, depth + 1]);
-      return close.concat(firstLine);
-    }
-    if (x === MID && y === MID + 1) {
-      const firstLine = Array(COLS)
-        .fill()
-        .map((_, i) => [i, ROWS - 1, depth + 1]);
-      return close.concat(firstLine);
+    if (depth < MAX_DEPTH) {
+      if (x === MID - 1 && y === MID) {
+        const firstLine = Array(ROWS)
+          .fill()
+          .map((_, j) => [0, j, depth + 1]);
+        return close.concat(firstLine);
+      }
+      if (x === MID + 1 && y === MID) {
+        const firstLine = Array(ROWS)
+          .fill()
+          .map((_, j) => [COLS - 1, j, depth + 1]);
+        return close.concat(firstLine);
+      }
+      if (x === MID && y === MID - 1) {
+        const firstLine = Array(COLS)
+          .fill()
+          .map((_, i) => [i, 0, depth + 1]);
+        return close.concat(firstLine);
+      }
+      if (x === MID && y === MID + 1) {
+        const firstLine = Array(COLS)
+          .fill()
+          .map((_, i) => [i, ROWS - 1, depth + 1]);
+        return close.concat(firstLine);
+      }
     }
   }
 
@@ -103,11 +105,13 @@ function part1(rawInput) {
   }
 }
 
+// depth goes from - 5 to 5
 function getNextStateDeep(states, x, y, depth) {
-  const isBug = ([i, j]) => states[0][i][j] === "#";
-  const bugNeighbours = getNeighbours(x, y).filter(isBug);
+  const isBug = ([i, j, otherDepth = depth]) =>
+    states[otherDepth - MIN_DEPTH][i][j] === "#";
+  const bugNeighbours = getNeighbours(x, y, depth).filter(isBug);
   const l = bugNeighbours.length;
-  return bugRules(states[0][x][y], l);
+  return bugRules(states[depth - MIN_DEPTH][x][y], l);
 }
 
 function tickDeep(states = [], depth) {
@@ -127,7 +131,7 @@ function part2(rawInput) {
   let states = Array(11)
     .fill()
     .map(() => copyState(input));
-  for (let i = 0; i < 4; i += 1) {
+  for (let i = 0; i < 10; i += 1) {
     states = states.map((state, depth) => tickDeep(states, depth + MIN_DEPTH));
   }
   return states;
