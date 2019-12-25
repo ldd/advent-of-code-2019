@@ -9,10 +9,11 @@ const ROWS = 5;
 const COLS = 5;
 const MID = 2;
 
-const MAX_DEPTH = 5;
-const MIN_DEPTH = -5;
+const TICKS = 200;
+const MAX_DEPTH = TICKS - 1;
+const MIN_DEPTH = -MAX_DEPTH;
 function getNeighbours(x, y, depth, rows = ROWS, cols = COLS) {
-  const close = [
+  let close = [
     [x - 1, y],
     [x + 1, y],
     [x, y - 1],
@@ -23,35 +24,35 @@ function getNeighbours(x, y, depth, rows = ROWS, cols = COLS) {
     // never fill center stage
     if (x === MID && y === MID) return [];
     if (MIN_DEPTH < depth) {
-      if (x === 0) return close.concat([[MID - 1, MID, depth - 1]]);
-      if (x === COLS - 1) return close.concat([[MID + 1, MID, depth - 1]]);
-      if (y === 0) return close.concat([[MID, MID - 1, depth - 1]]);
-      if (y === ROWS - 1) return close.concat([[MID, MID + 1, depth - 1]]);
+      if (x === 0) close = close.concat([[MID - 1, MID, depth - 1]]);
+      if (x === COLS - 1) close = close.concat([[MID + 1, MID, depth - 1]]);
+      if (y === 0) close = close.concat([[MID, MID - 1, depth - 1]]);
+      if (y === ROWS - 1) close = close.concat([[MID, MID + 1, depth - 1]]);
     }
     if (depth < MAX_DEPTH) {
       if (x === MID - 1 && y === MID) {
-        const firstLine = Array(ROWS)
+        const line = Array(ROWS)
           .fill()
           .map((_, j) => [0, j, depth + 1]);
-        return close.concat(firstLine);
+        close = close.concat(line);
       }
       if (x === MID + 1 && y === MID) {
-        const firstLine = Array(ROWS)
+        const line = Array(ROWS)
           .fill()
           .map((_, j) => [COLS - 1, j, depth + 1]);
-        return close.concat(firstLine);
+        close = close.concat(line);
       }
       if (x === MID && y === MID - 1) {
-        const firstLine = Array(COLS)
+        const line = Array(COLS)
           .fill()
           .map((_, i) => [i, 0, depth + 1]);
-        return close.concat(firstLine);
+        close = close.concat(line);
       }
       if (x === MID && y === MID + 1) {
-        const firstLine = Array(COLS)
+        const line = Array(COLS)
           .fill()
           .map((_, i) => [i, ROWS - 1, depth + 1]);
-        return close.concat(firstLine);
+        close = close.concat(line);
       }
     }
   }
@@ -105,7 +106,17 @@ function part1(rawInput) {
   }
 }
 
-// depth goes from - 5 to 5
+function getInitialStates(input) {
+  const emptyInput = Array(5)
+    .fill()
+    .map(() => ".....".split(""));
+  const states = Array(2 * TICKS - 1)
+    .fill()
+    .map(() => copyState(emptyInput));
+  states[MAX_DEPTH] = copyState(input);
+  return states;
+}
+
 function getNextStateDeep(states, x, y, depth) {
   const isBug = ([i, j, otherDepth = depth]) =>
     states[otherDepth - MIN_DEPTH][i][j] === "#";
@@ -122,21 +133,16 @@ function tickDeep(states = [], depth) {
 }
 
 function part2(rawInput) {
-  rawInput = `....#
-#..#.
-#.?##
-..#..
-#....`;
   const input = parseInput(rawInput);
-  let states = Array(11)
-    .fill()
-    .map(() => copyState(input));
-  for (let i = 0; i < 10; i += 1) {
-    states = states.map((state, depth) => tickDeep(states, depth + MIN_DEPTH));
+  let states = getInitialStates(input);
+
+  for (let i = 0; i < TICKS; i += 1) {
+    states = states.map((state, depth, allStates) =>
+      tickDeep(allStates, depth + MIN_DEPTH)
+    );
   }
-  return states;
-  // const allBugs = states.flat(2).filter(tile => tile === "#");
-  // return allBugs.length;
+  const allBugs = states.flat(2).filter(tile => tile === "#");
+  return allBugs.length;
 }
 
 module.exports = { part1, part2 };
